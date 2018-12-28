@@ -1,28 +1,63 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import socketIOClient from 'socket.io-client'
+import SurveyContainer from './components/SurveyContainer'
+import AdminPanel from './components/AdminPanel'
 
-class App extends Component {
+const socket = socketIOClient('http://127.0.0.1:4001')
+
+export default class App extends React.Component {
+  constructor() {
+    super()
+    this.state = {
+      clients: [],
+      results: {},
+      length: null
+    }
+  }
+
+  componentDidMount() {
+    socket.on('change', (state) => {
+      const results = {}
+      state.clients.forEach(({ selection }) => {
+        if (!results[selection]) results[selection] = 1
+        else results[selection]++
+      })
+      this.setState({ ...state, results })
+    })
+  }
+
   render() {
+    const { clients, length, results } = this.state
+    const isAdmin = this.isAdmin()
+    const numberOfClients = clients.length
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <div style={{ textAlign: 'center' }}>
+        { length === null && <p>Loading...</p> }
+        { length !== null && <p>{this.getNumberReport(numberOfClients)}</p> }
+        { length !== null && <SurveyContainer length={length} results={results} onSelect={value => this.onSelection(value)} /> }
+        { isAdmin && <AdminPanel onSubmit={value => this.setLength(value)}/> }
       </div>
-    );
+    )
+  }
+
+  onSelection (value) {
+    socket.emit('makeSelection', value)
+  }
+
+  setLength (length) {
+    socket.emit('setLength', length)
+  }
+
+  getNumberReport (number) {
+    if (number === 1) return `There is ${number} user connected.`
+    return `There are ${number} users connected.`
+  }
+
+  isAdmin () {
+    const { match } = this.props
+    if (!match) return false
+    const { params } = match
+    if (!params) return false
+    return params.id === 'admin'
   }
 }
-
-export default App;

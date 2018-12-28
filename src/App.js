@@ -30,11 +30,13 @@ export default class App extends React.Component {
     const { clients, length, results } = this.state
     const isAdmin = this.isAdmin()
     const numberOfClients = clients.length
+    const client = clients.find(client => client.id === socket.id)
+    const selection = client ? client.selection : null
     return (
       <div style={{ textAlign: 'center' }}>
         { length === null && <p>Loading...</p> }
         { length !== null && <p>{this.getNumberReport(numberOfClients)}</p> }
-        { length !== null && <SurveyContainer length={length} results={results} onSelect={value => this.onSelection(value)} /> }
+        { length !== null && <SurveyContainer length={length} results={results} selection={selection} onSelect={value => this.onSelection(value)} /> }
         { isAdmin && <AdminPanel onSubmit={value => this.setLength(value)}/> }
       </div>
     )

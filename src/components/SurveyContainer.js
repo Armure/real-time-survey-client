@@ -1,5 +1,6 @@
 import React from 'react'
 import Button from '@material-ui/core/Button'
+import Badge from '@material-ui/core/Badge'
 
 const style = {
   display: 'flex',
@@ -19,14 +20,23 @@ export default class SurveyContainer extends React.Component {
   }
 
   getOptions () {
-    const { length, results, onSelect } = this.props
+    const { length, results, onSelect, selection } = this.props
     return [...Array(parseFloat(length))].map((val, idx) => {
+      const color = selection === idx ? 'secondary' : 'primary'
       const total = results[idx] || 0
-      return <Button variant='contained' color='primary'
-        key={idx} onClick={() => onSelect(idx)}
-        style={{ marginTop: '10px' }}>
-        {`Option ${idx + 1} (${total})`}
-      </Button>
+      return this.getButton(idx, color, total, onSelect)
     })
+  }
+
+  getButton (idx, color, total, onSelect) {
+    return (
+      <Badge key={idx} color='error' badgeContent={total}
+        style={{ marginTop: '20px' }}>
+        <Button variant='contained' color={color}
+          onClick={() => onSelect(idx)}>
+          {`Option ${idx + 1}`}
+        </Button>
+      </Badge>
+    )
   }
 }

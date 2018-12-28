@@ -23,7 +23,7 @@ export default class SurveyContainer extends React.Component {
     return (
       <div style={style}>
         <Input type='number' value={value} onChange={e => this.handleChange(e)}/>
-        <Button variant='contained' color='primary' onClick={() => onSubmit(value)}
+        <Button variant='contained' color='default' onClick={() => onSubmit(value)}
           style={{ marginTop: '20px' }}>
           Submit
         </Button>
